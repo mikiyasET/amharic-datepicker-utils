@@ -2,13 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'amharic-datepicker-utils/**'
+      - "amharic-datepicker-utils/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'amharic-datepicker-utils/**'
+      - "amharic-datepicker-utils/**"
 
 jobs:
   build:
@@ -21,8 +21,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
           cache-dependency-path: amharic-datepicker-utils/package-lock.json
 
       - name: Install Dependencies
