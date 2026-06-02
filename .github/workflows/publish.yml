@@ -20,19 +20,16 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: amharic-datepicker-utils/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Upgrade npm
         run: npm install -g npm@latest
 
       - name: Install Dependencies
-        working-directory: amharic-datepicker-utils
         run: npm ci
 
       - name: Build Package
-        working-directory: amharic-datepicker-utils
         run: npm run build
 
       - name: Publish to NPM
-        working-directory: amharic-datepicker-utils
         run: npm publish --provenance

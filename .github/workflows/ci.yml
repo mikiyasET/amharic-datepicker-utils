@@ -3,12 +3,8 @@ name: CI
 on:
   push:
     branches: [main]
-    paths:
-      - "amharic-datepicker-utils/**"
   pull_request:
     branches: [main]
-    paths:
-      - "amharic-datepicker-utils/**"
 
 jobs:
   build:
@@ -23,12 +19,10 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: amharic-datepicker-utils/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Dependencies
-        working-directory: amharic-datepicker-utils
         run: npm ci
 
       - name: Build Package
-        working-directory: amharic-datepicker-utils
         run: npm run build
