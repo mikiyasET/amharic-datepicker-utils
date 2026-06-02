@@ -1,0 +1,13 @@
+{
+  "name": "amharic-datepicker-utils-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Example usage of amharic-datepicker-utils",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "amharic-datepicker-utils": "file:.."
+  }
+}

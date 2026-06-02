@@ -1,0 +1,38 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Required for OIDC token generation
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: amharic-datepicker-utils/package-lock.json
+
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Install Dependencies
+        working-directory: amharic-datepicker-utils
+        run: npm ci
+
+      - name: Build Package
+        working-directory: amharic-datepicker-utils
+        run: npm run build
+
+      - name: Publish to NPM
+        working-directory: amharic-datepicker-utils
+        run: npm publish --provenance

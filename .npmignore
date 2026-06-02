@@ -1,0 +1,8 @@
+node_modules
+example
+src
+tsconfig.json
+tsup.config.ts
+.gitignore
+.idea
+.github

@@ -1,0 +1,52 @@
+{
+  "name": "amharic-datepicker-utils",
+  "version": "1.0.0",
+  "description": "Pure TypeScript utilities for Ethiopian (Amharic) calendar and time conversion. Zero dependencies — works on both backend and frontend.",
+  "author": "Mikiyas Lemlemu <Mikiyaslemlemu@gmail.com>",
+  "license": "ISC",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "bugs": {
+    "url": "https://github.com/mikiyasET/amharic-datepicker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikiyasET/amharic-datepicker.git",
+    "directory": "amharic-datepicker-utils"
+  },
+  "keywords": [
+    "Amharic",
+    "Ethiopian",
+    "Calendar",
+    "Date",
+    "Conversion",
+    "Ethiopian Calendar",
+    "Amharic Calendar",
+    "Gregorian",
+    "Ethiopian Time",
+    "Amharic Time",
+    "Codeabay",
+    "Utils",
+    "Backend",
+    "Node.js"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
