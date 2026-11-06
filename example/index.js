@@ -1,16 +1,26 @@
 import {
   toEthiopian,
   toGregorian,
+  toGregorianDate,
   toEthiopianTime,
   toGregorianTime,
   getEthTimePeriod,
   ethMonths,
+  ethMonthsEn,
   ethDays,
+  ethDaysEn,
   ethAMPMs,
   getDaysInMonth,
   isEthiopianLeapYear,
+  getDayOfWeek,
+  getEthDayName,
+  formatEthiopian,
+  parseEthiopianDate,
+  toGeez,
+  fromGeez,
+  addDays,
+  diffDays,
   toGregorianTime12h,
-  toGregorianTime24h,
 } from 'amharic-datepicker-utils';
 
 // ─── Helper ──────────────────────────────────────────────────────
@@ -20,24 +30,38 @@ const divider = (title) => console.log(`\n${'═'.repeat(50)}\n  ${title}\n${'�
 divider("Today's Date");
 
 const now = new Date();
-const gregToday = { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
-const ethToday = toEthiopian(gregToday.year, gregToday.month, gregToday.day);
+const ethToday = toEthiopian(now);
 
-console.log(`  Gregorian : ${gregToday.year}-${gregToday.month}-${gregToday.day}`);
+console.log(`  Gregorian : ${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`);
 console.log(`  Ethiopian : ${ethToday.year}-${ethToday.month}-${ethToday.day}`);
-console.log(`             ${ethMonths[ethToday.month - 1]} ${ethToday.day}, ${ethToday.year}`);
+console.log(`  Full Format: ${formatEthiopian(now, 'full')}`);
+console.log(`  Ge'ez Style: ${formatEthiopian(now, 'geez')}`);
 
-// ─── 2. Date Conversion ─────────────────────────────────────────
+// ─── 2. Date Conversion (Overloaded Support) ──────────────────────
 divider('Date Conversion');
 
+// Passing numbers
 const eth = toEthiopian(2023, 9, 12);
-console.log(`  Gregorian 2023-09-12  →  Ethiopian ${eth.year}-${eth.month}-${eth.day}`);
+console.log(`  Gregorian 2023-09-12 (numbers)   →  Ethiopian ${eth.year}-${eth.month}-${eth.day}`);
 
+// Passing Date instance
+const ethFromDate = toEthiopian(new Date(2023, 8, 12));
+console.log(`  Gregorian Date instance          →  Ethiopian ${ethFromDate.year}-${ethFromDate.month}-${ethFromDate.day}`);
+
+// Passing ISO string
+const ethFromISO = toEthiopian('2023-09-12');
+console.log(`  Gregorian ISO string             →  Ethiopian ${ethFromISO.year}-${ethFromISO.month}-${ethFromISO.day}`);
+
+// Ethiopian to Gregorian
 const greg = toGregorian(2016, 1, 1);
-console.log(`  Ethiopian 2016-01-01  →  Gregorian ${greg.year}-${greg.month}-${greg.day}`);
+console.log(`  Ethiopian 2016-01-01             →  Gregorian ${greg.year}-${greg.month}-${greg.day}`);
+
+// Direct conversion to JavaScript Date object
+const jsDate = toGregorianDate(2016, 1, 1, 8, 30);
+console.log(`  toGregorianDate(2016, 1, 1, 8:30) →  JS Date: ${jsDate.toISOString()}`);
 
 // Round-trip check
-const roundTrip = toGregorian(eth.year, eth.month, eth.day);
+const roundTrip = toGregorian(eth);
 console.log(`  Round-trip: 2023-09-12 → Eth → Greg = ${roundTrip.year}-${roundTrip.month}-${roundTrip.day} ✓`);
 
 // ─── 3. Time Conversion ─────────────────────────────────────────
@@ -71,44 +95,45 @@ for (const t of ethTimes) {
   console.log(`  Ethiopian ${t.ampm} ${t.h}:${String(t.m).padStart(2, '0')}  →  Gregorian ${g12.hour}:${String(gregTime.minute).padStart(2, '0')} ${g12.ampm} (${gregTime.hour}:${String(gregTime.minute).padStart(2, '0')} 24h)`);
 }
 
-// ─── 4. Ethiopian Calendar Data ──────────────────────────────────
-divider('Ethiopian Months');
-ethMonths.forEach((name, i) => {
-  const monthNum = i + 1;
-  const days = getDaysInMonth(ethToday.year, monthNum);
-  console.log(`  ${String(monthNum).padStart(2)} ${name.padEnd(6)}  (${days} days)`);
-});
+// ─── 4. Ge'ez Numeral Conversions ────────────────────────────────
+divider("Ge'ez Numeral Conversions");
 
-divider('Ethiopian Days of the Week');
-ethDays.forEach((name, i) => console.log(`  ${i} = ${name}`));
+console.log(`  Number 1    →  ${toGeez(1)}`);
+console.log(`  Number 27   →  ${toGeez(27)}`);
+console.log(`  Number 100  →  ${toGeez(100)}`);
+console.log(`  Number 2017 →  ${toGeez(2017)}`);
+console.log(`  Number 2026 →  ${toGeez(2026)}`);
+console.log(`  Parse ፳፻፲፯   →  ${fromGeez('፳፻፲፯')} (number)`);
 
-divider('Ethiopian AM/PM');
-console.log(`  ${ethAMPMs.join(' / ')}`);
+// ─── 5. Date Parsing & Formatting ────────────────────────────────
+divider('Date Parsing & Formatting');
 
-// ─── 5. Leap Year Check ─────────────────────────────────────────
+const parsed = parseEthiopianDate('ጥቅምት 27, 2017 ዓ.ም');
+console.log(`  Parsed 'ጥቅምት 27, 2017 ዓ.ም'   →`, parsed);
+
+console.log(`  Preset 'full'     : ${formatEthiopian(parsed, 'full')}`);
+console.log(`  Preset 'long'     : ${formatEthiopian(parsed, 'long')}`);
+console.log(`  Preset 'short'    : ${formatEthiopian(parsed, 'short')}`);
+console.log(`  Preset 'geez'     : ${formatEthiopian(parsed, 'geez')}`);
+console.log(`  Locale 'en'       : ${formatEthiopian(parsed, 'full', { locale: 'en' })}`);
+console.log(`  Custom Pattern    : ${formatEthiopian(parsed, 'dddd [በ] MMMM D [ቀን]')}`);
+
+// ─── 6. Date Arithmetic & Day of the Week ────────────────────────
+divider('Date Arithmetic & Day of the Week');
+
+const baseDate = { year: 2017, month: 2, day: 25 };
+const plus10 = addDays(baseDate, 10);
+console.log(`  Base Date      : ${formatEthiopian(baseDate, 'long')}`);
+console.log(`  +10 Days       : ${formatEthiopian(plus10, 'long')} (Crossed month boundary)`);
+console.log(`  Diff in Days   : ${diffDays(plus10, baseDate)} days`);
+console.log(`  Day of Week    : ${getEthDayName(plus10)} (${getEthDayName(plus10, { locale: 'en' })})`);
+
+// ─── 7. Calendar Data & Leap Years ───────────────────────────────
 divider('Leap Year Check');
 for (let y = 2015; y <= 2027; y++) {
   const leap = isEthiopianLeapYear(y);
   const pagumeDays = getDaysInMonth(y, 13);
   console.log(`  ${y} : ${leap ? '✓ Leap Year' : '  Regular  '} (Pagume has ${pagumeDays} days)`);
-}
-
-// ─── 6. Backend Use Case: Date Range ────────────────────────────
-divider('Backend Use Case: Generate Ethiopian Date Range');
-
-function ethAddDays(year, month, day, daysToAdd) {
-  const greg = toGregorian(year, month, day);
-  const d = new Date(greg.year, greg.month - 1, greg.day);
-  d.setDate(d.getDate() + daysToAdd);
-  return toEthiopian(d.getFullYear(), d.getMonth() + 1, d.getDate());
-}
-
-console.log(`  Next 7 days starting from ${ethMonths[ethToday.month - 1]} ${ethToday.day}, ${ethToday.year}:`);
-for (let i = 0; i < 7; i++) {
-  const d = ethAddDays(ethToday.year, ethToday.month, ethToday.day, i);
-  const gd = toGregorian(d.year, d.month, d.day);
-  const dayName = ethDays[new Date(gd.year, gd.month - 1, gd.day).getDay()];
-  console.log(`    ${dayName.padEnd(5)}  ${ethMonths[d.month - 1]} ${d.day}, ${d.year}  (${gd.year}-${gd.month}-${gd.day})`);
 }
 
 console.log('\n✅ All examples completed successfully!\n');
