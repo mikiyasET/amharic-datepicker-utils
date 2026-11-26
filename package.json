@@ -19,11 +19,11 @@
     "dist"
   ],
   "bugs": {
-    "url": "https://github.com/mikiyasET/amharic-datepicker/issues"
+    "url": "https://github.com/mikiyasET/amharic-datepicker-utils/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mikiyasET/amharic-datepicker.git",
+    "url": "git+https://github.com/mikiyasET/amharic-datepicker-utils.git",
     "directory": "amharic-datepicker-utils"
   },
   "keywords": [

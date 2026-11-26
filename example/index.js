@@ -68,10 +68,14 @@ console.log(`  Round-trip: 2023-09-12 → Eth → Greg = ${roundTrip.year}-${rou
 divider('Time Conversion');
 
 const times = [
-  { h: 7, m: 30, label: '7:30 AM' },
-  { h: 14, m: 0, label: '2:00 PM' },
-  { h: 0, m: 15, label: '12:15 AM (midnight)' },
-  { h: 18, m: 45, label: '6:45 PM' },
+  { h: 0, m: 15, label: '12:15 AM (Midnight)' },
+  { h: 2, m: 30, label: '2:30 AM (Deep night)' },
+  { h: 5, m: 15, label: '5:15 AM (Dawn)' },
+  { h: 7, m: 30, label: '7:30 AM (Morning)' },
+  { h: 14, m: 0, label: '2:00 PM (Afternoon)' },
+  { h: 17, m: 30, label: '5:30 PM (Dusk)' },
+  { h: 18, m: 45, label: '6:45 PM (Evening)' },
+  { h: 22, m: 0, label: '10:00 PM (Night)' },
 ];
 
 for (const t of times) {

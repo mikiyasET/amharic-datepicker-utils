@@ -38,14 +38,26 @@ export interface GregDateTime extends GregDate {
 }
 
 export type EthAMPM = 'ቀን' | 'ማታ';
-export type EthTimePeriod = 'ጠዋት' | 'ከሰዓት' | 'ምሽት' | 'ሌሊት';
+export type EthTimePeriod =
+  | 'ንጋት'
+  | 'ጠዋት'
+  | 'ከሰዓት'
+  | 'ወደ ማታ'
+  | 'ምሽት'
+  | 'ማታ'
+  | 'ሌሊት'
+  | 'እኩለ ሌሊት';
 export type GregAMPM = 'AM' | 'PM';
 
 export interface EthTimePeriodConfig {
-  morningStart?: number;   // default: 6
-  afternoonStart?: number; // default: 12
-  eveningStart?: number;   // default: 18
-  nightStart?: number;     // default: 24 (or 0)
+  midnightHour?: number;     // default: 0  (እኩለ ሌሊት)
+  lateNightStart?: number;   // default: 1  (ሌሊት)
+  dawnStart?: number;        // default: 5  (ንጋት)
+  morningStart?: number;     // default: 6  (ጠዋት)
+  afternoonStart?: number;   // default: 12 (ከሰዓት)
+  duskStart?: number;        // default: 17 (ወደ ማታ)
+  eveningStart?: number;     // default: 18 (ምሽት)
+  nightStart?: number;       // default: 21 (ማታ)
 }
 
 export interface FormatOptions {
@@ -86,6 +98,17 @@ export const ethDaysShort: readonly string[] = [
 ];
 
 export const ethAMPMs: readonly EthAMPM[] = ['ቀን', 'ማታ'];
+
+export const ethTimePeriods: readonly EthTimePeriod[] = [
+  'ንጋት',
+  'ጠዋት',
+  'ከሰዓት',
+  'ወደ ማታ',
+  'ምሽት',
+  'ማታ',
+  'ሌሊት',
+  'እኩለ ሌሊት',
+];
 
 export const gregMonths: readonly string[] = [
   "January", "February", "March", "April", "May", "June",
@@ -596,7 +619,6 @@ export function formatEthiopian(
   if (dateInput instanceof Date) {
     const ethD = toEthiopian(dateInput);
     const ethT = toEthiopianTime(dateInput.getHours(), dateInput.getMinutes());
-    const period = getEthTimePeriod(dateInput.getHours(), opts.periodConfig);
     eth = {
       ...ethD,
       hour: ethT.hour,
@@ -656,8 +678,9 @@ export function formatEthiopian(
   const ethHour = eth.hour ?? 12;
   const ethMinute = eth.minute ?? 0;
   const ethSecond = eth.second ?? 0;
-  const period = eth.ampm ? (eth.ampm === 'ቀን' ? 'ጠዋት' : 'ምሽት') : 'ጠዋት';
-  const ampmStr = eth.ampm || 'ቀን';
+  const ampmStr: EthAMPM = eth.ampm || 'ቀን';
+  const gregTime = toGregorianTime(ethHour, ethMinute, ampmStr);
+  const period = getEthTimePeriod(gregTime.hour, opts.periodConfig);
 
   const tokens: Record<string, string> = {
     YYYY: opts.useGeez ? toGeez(eth.year) : String(eth.year),
@@ -696,18 +719,41 @@ export const formatEthDate = formatEthiopian;
 
 // ─── Time Conversion ──────────────────────────────────────────────
 
+/**
+ * Returns the Amharic time-of-day period for a 24-hour Gregorian hour.
+ *
+ * Default ranges:
+ * - 00:00–00:59 → እኩለ ሌሊት (Midnight)
+ * - 01:00–04:59 → ሌሊት (Late night / Deep night)
+ * - 05:00–05:59 → ንጋት (Dawn / Early morning)
+ * - 06:00–11:59 → ጠዋት (Morning)
+ * - 12:00–16:59 → ከሰዓት (Afternoon)
+ * - 17:00–17:59 → ወደ ማታ (Dusk / Late afternoon)
+ * - 18:00–20:59 → ምሽት (Evening)
+ * - 21:00–23:59 → ማታ (Night)
+ */
 export function getEthTimePeriod(
   gregHour: number,
   config?: EthTimePeriodConfig
 ): EthTimePeriod {
+  const hour = ((Math.floor(gregHour) % 24) + 24) % 24;
+  const midnightHour = config?.midnightHour ?? 0;
+  const lateNightStart = config?.lateNightStart ?? 1;
+  const dawnStart = config?.dawnStart ?? 5;
   const morningStart = config?.morningStart ?? 6;
   const afternoonStart = config?.afternoonStart ?? 12;
+  const duskStart = config?.duskStart ?? 17;
   const eveningStart = config?.eveningStart ?? 18;
-  const nightStart = config?.nightStart ?? 24;
+  const nightStart = config?.nightStart ?? 21;
 
-  if (gregHour >= morningStart && gregHour < afternoonStart) return 'ጠዋት';
-  if (gregHour >= afternoonStart && gregHour < eveningStart) return 'ከሰዓት';
-  if (gregHour >= eveningStart && gregHour < nightStart) return 'ምሽት';
+  if (hour === midnightHour) return 'እኩለ ሌሊት';
+  if (hour >= nightStart) return 'ማታ';
+  if (hour >= eveningStart) return 'ምሽት';
+  if (hour >= duskStart) return 'ወደ ማታ';
+  if (hour >= afternoonStart) return 'ከሰዓት';
+  if (hour >= morningStart) return 'ጠዋት';
+  if (hour >= dawnStart) return 'ንጋት';
+  if (hour >= lateNightStart) return 'ሌሊት';
   return 'ሌሊት';
 }
 
@@ -723,17 +769,25 @@ export function toEthiopianTime(
   return { hour: ethHour, minute: gregMinute, ampm };
 }
 
+const NIGHT_HALF_PERIODS = new Set<string>([
+  'ማታ',
+  'ምሽት',
+  'ሌሊት',
+  'እኩለ ሌሊት',
+  'ንጋት',
+]);
+
 export function toGregorianTime(
   ethHour: number,
   ethMinute: number,
-  ampm: EthAMPM
+  ampm: EthAMPM | EthTimePeriod
 ): { hour: number; minute: number } {
   let gregHour = ethHour + 6;
   if (ethHour === 12) {
     gregHour = 6;
   }
 
-  if (ampm === 'ማታ') {
+  if (NIGHT_HALF_PERIODS.has(ampm)) {
     gregHour += 12;
   }
 

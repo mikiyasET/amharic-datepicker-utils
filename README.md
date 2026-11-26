@@ -21,7 +21,7 @@ Pure TypeScript utilities for Ethiopian (Amharic) calendar and time conversion. 
 - ⏳ **Date Math & Comparison**: `addDays`, `subDays`, `addMonths`, `subMonths`, `addYears`, `subYears`, `diffDays`, `compareEthDates`, `isBeforeEthDate`, `isAfterEthDate`, and `isSameEthDate`.
 - 📆 **Day of the Week Helpers**: `getDayOfWeek(date)` and `getEthDayName(date, { locale: 'am' | 'en' })`.
 - 🌐 **Multilingual Datasets**: Includes English transliterations (`ethMonthsEn`, `ethDaysEn`) and abbreviations (`ethMonthsShort`, `ethDaysShort`).
-- ⚙️ **Configurable Time Periods**: Customize morning, afternoon, evening, and night thresholds in `getEthTimePeriod()`.
+- ⚙️ **Configurable Time Periods**: Culturally accurate 8-period Amharic time labels (`ንጋት`, `ጠዋት`, `ከሰዓት`, `ወደ ማታ`, `ምሽት`, `ማታ`, `ሌሊት`, `እኩለ ሌሊት`) with customizable thresholds in `getEthTimePeriod()`.
 
 ---
 
@@ -169,7 +169,7 @@ formatEthiopian(date, 'dddd [በ] MMMM D [ቀን] YYYY [ዓ.ም]');
 | `h` | 1-digit 12-hour clock | `3` |
 | `mm` | 2-digit minute | `30` |
 | `ss` | 2-digit second | `00` |
-| `a` | Ethiopian time period | `ጠዋት` / `ከሰዓት` / `ምሽት` / `ሌሊት` |
+| `a` | Ethiopian time period | `ንጋት` / `ጠዋት` / `ከሰዓት` / `ወደ ማታ` / `ምሽት` / `ማታ` / `ሌሊት` / `እኩለ ሌሊት` |
 | `A` | Ethiopian AM/PM | `ቀን` / `ማታ` |
 | `[...]` | Escaped literal text | `[ቀን]` |
 
@@ -271,15 +271,30 @@ toEthiopianTime(7, 30);
 toGregorianTime(6, 0, 'ማታ');
 // { hour: 0, minute: 0 } (Midnight)
 
-// Ethiopian Time Period labels:
-getEthTimePeriod(7);  // "ጠዋት"
-getEthTimePeriod(14); // "ከሰዓት"
-getEthTimePeriod(19); // "ምሽት"
-getEthTimePeriod(2);  // "ሌሊት"
+// Ethiopian Time Period labels (all 8 periods):
+getEthTimePeriod(0);  // "እኩለ ሌሊት" (Midnight: 12:00 AM – 12:59 AM)
+getEthTimePeriod(2);  // "ሌሊት"       (Late night: 1:00 AM – 4:59 AM)
+getEthTimePeriod(5);  // "ንጋት"       (Dawn: 5:00 AM – 5:59 AM)
+getEthTimePeriod(7);  // "ጠዋት"       (Morning: 6:00 AM – 11:59 AM)
+getEthTimePeriod(14); // "ከሰዓት"      (Afternoon: 12:00 PM – 4:59 PM)
+getEthTimePeriod(17); // "ወደ ማታ"     (Dusk: 5:00 PM – 5:59 PM)
+getEthTimePeriod(19); // "ምሽት"       (Evening: 6:00 PM – 8:59 PM)
+getEthTimePeriod(22); // "ማታ"        (Night: 9:00 PM – 11:59 PM)
 
 // Configurable period thresholds:
 getEthTimePeriod(17, { eveningStart: 16 }); // "ምሽት"
 ```
+
+| Period | Transliteration | Meaning | Time Range (Gregorian) |
+|---|---|---|---|
+| `ንጋት` | Nigat | Dawn / Early morning | 5:00 AM – 5:59 AM |
+| `ጠዋት` | Tewat | Morning | 6:00 AM – 11:59 AM |
+| `ከሰዓት` | Kese'at | Afternoon | 12:00 PM – 4:59 PM |
+| `ወደ ማታ` | Wede Mata | Dusk / Late afternoon | 5:00 PM – 5:59 PM |
+| `ምሽት` | Mishet | Evening | 6:00 PM – 8:59 PM |
+| `ማታ` | Mata | Night | 9:00 PM – 11:59 PM |
+| `እኩለ ሌሊት` | Ekule Lelit | Midnight | 12:00 AM – 12:59 AM |
+| `ሌሊት` | Lelit | Late night / Deep night | 1:00 AM – 4:59 AM |
 
 ---
 
@@ -354,7 +369,7 @@ isEthiopianLeapYear(2016); // false
 |---|---|
 | `toEthiopianTime(h, m)` | Gregorian 24h to Ethiopian 12h clock |
 | `toGregorianTime(h, m, ampm)` | Ethiopian 12h clock to Gregorian 24h |
-| `getEthTimePeriod(hour, config?)` | Returns `'ጠዋት'` \| `'ከሰዓት'` \| `'ምሽት'` \| `'ሌሊት'` |
+| `getEthTimePeriod(hour, config?)` | Returns `'ንጋት'` \| `'ጠዋት'` \| `'ከሰዓት'` \| `'ወደ ማታ'` \| `'ምሽት'` \| `'ማታ'` \| `'ሌሊት'` \| `'እኩለ ሌሊት'` |
 | `getDayOfWeek(date \| y, m, d)` | Day of week index (0 = Sunday, 6 = Saturday) |
 | `getEthDayName(date, options?)` | Localized day name (Amharic or English) |
 | `getFirstDayOfMonth(y, m)` | Day of week for the 1st of an Ethiopian month |

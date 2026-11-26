@@ -201,17 +201,37 @@ test('formatEthiopian / formatEthDate', () => {
   assert.strictEqual(u.formatEthDate(d, 'iso'), '2017-02-27');
 });
 
-test('Configurable getEthTimePeriod', () => {
-  // Default thresholds
-  assert.strictEqual(u.getEthTimePeriod(8), 'ጠዋት');
-  assert.strictEqual(u.getEthTimePeriod(14), 'ከሰዓት');
-  assert.strictEqual(u.getEthTimePeriod(19), 'ምሽት');
-  assert.strictEqual(u.getEthTimePeriod(3), 'ሌሊት');
+test('Configurable getEthTimePeriod (all 8 Amharic periods)', () => {
+  // Default thresholds covering all 24 hours
+  assert.strictEqual(u.getEthTimePeriod(0), 'እኩለ ሌሊት'); // 12:00 AM
+  assert.strictEqual(u.getEthTimePeriod(1), 'ሌሊት');       // 1:00 AM
+  assert.strictEqual(u.getEthTimePeriod(3), 'ሌሊት');       // 3:00 AM
+  assert.strictEqual(u.getEthTimePeriod(4), 'ሌሊት');       // 4:00 AM
+  assert.strictEqual(u.getEthTimePeriod(5), 'ንጋት');       // 5:00 AM
+  assert.strictEqual(u.getEthTimePeriod(6), 'ጠዋት');       // 6:00 AM
+  assert.strictEqual(u.getEthTimePeriod(8), 'ጠዋት');       // 8:00 AM
+  assert.strictEqual(u.getEthTimePeriod(11), 'ጠዋት');      // 11:00 AM
+  assert.strictEqual(u.getEthTimePeriod(12), 'ከሰዓት');     // 12:00 PM
+  assert.strictEqual(u.getEthTimePeriod(14), 'ከሰዓት');     // 2:00 PM
+  assert.strictEqual(u.getEthTimePeriod(16), 'ከሰዓት');     // 4:00 PM
+  assert.strictEqual(u.getEthTimePeriod(17), 'ወደ ማታ');    // 5:00 PM
+  assert.strictEqual(u.getEthTimePeriod(18), 'ምሽት');      // 6:00 PM
+  assert.strictEqual(u.getEthTimePeriod(19), 'ምሽት');      // 7:00 PM
+  assert.strictEqual(u.getEthTimePeriod(20), 'ምሽት');      // 8:00 PM
+  assert.strictEqual(u.getEthTimePeriod(21), 'ማታ');       // 9:00 PM
+  assert.strictEqual(u.getEthTimePeriod(23), 'ማታ');       // 11:00 PM
+
+  // formatEthiopian resolves true time period via getEthTimePeriod
+  assert.strictEqual(u.formatEthiopian(new Date(2024, 10, 6, 0, 15), 'time'), 'እኩለ ሌሊት 6:15');
+  assert.strictEqual(u.formatEthiopian(new Date(2024, 10, 6, 5, 30), 'time'), 'ንጋት 11:30');
+  assert.strictEqual(u.formatEthiopian(new Date(2024, 10, 6, 14, 30), 'time'), 'ከሰዓት 8:30');
+  assert.strictEqual(u.formatEthiopian(new Date(2024, 10, 6, 17, 15), 'time'), 'ወደ ማታ 11:15');
+  assert.strictEqual(u.formatEthiopian(new Date(2024, 10, 6, 22, 0), 'time'), 'ማታ 4:00');
 
   // Custom thresholds (e.g. morning starts at 5, afternoon at 11, evening at 17, night at 21)
   const customConfig = { morningStart: 5, afternoonStart: 11, eveningStart: 17, nightStart: 21 };
   assert.strictEqual(u.getEthTimePeriod(5, customConfig), 'ጠዋት');
   assert.strictEqual(u.getEthTimePeriod(11, customConfig), 'ከሰዓት');
   assert.strictEqual(u.getEthTimePeriod(17, customConfig), 'ምሽት');
-  assert.strictEqual(u.getEthTimePeriod(22, customConfig), 'ሌሊት');
+  assert.strictEqual(u.getEthTimePeriod(22, customConfig), 'ማታ');
 });
